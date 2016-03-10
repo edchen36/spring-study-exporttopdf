@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<context:annotation-config></context:annotation-config>
+	<bean id="jsp-view-resolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="suffix" value=".jsp"></property>
+		<property name="order" value="2"></property>
+	</bean>
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="classpath:messages"></property>
+		<property name="defaultEncoding" value="UTF-8"></property>
+	</bean>
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="${database.driver}"></property>
+		<property name="url" value="${database.url}"></property>
+		<property name="username" value="${database.user}"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="annotatedClasses">
+			<list>
+				<value>study.spring.domain.Contact</value>
+				<value>study.spring.domain.Message</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.dialect">${database.dialect}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${database.hbm2ddl}</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="persistenceExceptionTranslationPostProcessor"
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor">
+	</bean>
+	<bean id="contactDAO" class="study.spring.dao.ContactDAOImpl"></bean>
+	<bean id="contactService"
+		class="study.spring.service.ContactServiceImpl">
+	</bean>
+	<bean id="messageDAO" class="study.spring.dao.MessageDAOImpl"></bean>
+	<bean id="messageService"
+		class="study.spring.service.MessageServiceImpl">
+	</bean>
+	<bean id="otherViewResolver"
+		class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+	<property name="basename" value="OtherViews"></property>
+	<property name="order" value="1"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager" />
+	<context:component-scan base-package="study.spring.controllers"></context:component-scan>
+	<context:property-placeholder
+		location="classpath:database.properties" />
+	<mvc:resources location="/bootstrap/dist/css/"
+		mapping="/bootstrap/dist/css/**">
+	</mvc:resources>
+	<mvc:resources location="/css/" mapping="/css/**"></mvc:resources>
+	<mvc:resources location="/bootstrap/dist/fonts/"
+		mapping="/bootstrap/dist/fonts/**">
+	</mvc:resources>
+	<mvc:resources location="/bootstrap/dist/js/"
+		mapping="/bootstrap/dist/js/**">
+	</mvc:resources>
+	
+	
+</beans>
